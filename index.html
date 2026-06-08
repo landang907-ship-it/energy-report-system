@@ -13,7 +13,7 @@
         :root {
             --sidebar-width: 280px;
             --primary-color: #2c3e50;
-            --accent-color: #3498db;
+            --accent-color: #34acdb;
             --success-color: #27ae60;
             --warning-color: #f39c12;
             --danger-color: #e74c3c;
@@ -435,6 +435,8 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ngày</th>
+                                    <th>Ca</th>
+                                    <th>Vị Trí</th>
                                     <th>Chỉ Số</th>
                                     <th>Đơn Giá</th>
                                     <th>Thành Tiền</th>
@@ -459,6 +461,8 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ngày</th>
+                                    <th>Ca</th>
+                                    <th>Vị Trí</th>
                                     <th>Chỉ Số</th>
                                     <th>Đơn Giá</th>
                                     <th>Thành Tiền</th>
@@ -483,6 +487,8 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ngày</th>
+                                    <th>Ca</th>
+                                    <th>Dòng SP</th>
                                     <th>Chỉ Số</th>
                                     <th>Đơn Giá</th>
                                     <th>Thành Tiền</th>
@@ -507,6 +513,8 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Ngày</th>
+                                    <th>Ca</th>
+                                    <th>Công Đoạn</th>
                                     <th>Chỉ Số</th>
                                     <th>Đơn Giá</th>
                                     <th>Thành Tiền</th>
@@ -589,7 +597,7 @@
                         <input type="hidden" id="dataId">
                         <div class="mb-3">
                             <label>Loại Năng Lượng</label>
-                            <select class="form-select" id="energyType" required>
+                            <select class="form-select" id="energyType" required onchange="onEnergyTypeChange()">
                                 <option value="">Chọn loại...</option>
                                 <option value="water">Nước</option>
                                 <option value="electric">Điện</option>
@@ -602,8 +610,33 @@
                             <input type="date" class="form-control" id="energyDate" required>
                         </div>
                         <div class="mb-3">
+                            <label>Ca Làm Việc</label>
+                            <select class="form-select" id="energyShift" required>
+                                <option value="sang">Ca Sáng</option>
+                                <option value="toi">Ca Tối</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="locationGroup">
+                            <label>Điểm Đo / Vị Trí</label>
+                            <select class="form-select" id="locationCode" required>
+                                <option value="">Chọn điểm đo...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="productLineGroup" style="display:none;">
+                            <label>Dòng Sản Phẩm</label>
+                            <select class="form-select" id="productLine" required>
+                                <option value="">Chọn dòng sản phẩm...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="processStepGroup" style="display:none;">
+                            <label>Công Đoạn</label>
+                            <select class="form-select" id="processStep" required>
+                                <option value="">Chọn công đoạn...</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label>Chỉ Số</label>
-                            <input type="number" class="form-control" id="energyValue" step="0.01" required>
+                            <input type="number" class="form-select" id="energyValue" step="0.01" required>
                         </div>
                         <div class="mb-3">
                             <label>Đơn Giá (VNĐ)</label>
@@ -637,6 +670,117 @@
         let monthlyChart = null;
         let pieChart = null;
         let allData = { water: [], electric: [], gas: [], steam: [] };
+
+        // Location data matching Excel structure
+        const locations = {
+            water: [
+                { code: 'B12-W', name: 'Phòng giặt B12' },
+                { code: 'B4.1-W', name: 'Khu dầu cọ B4.1' },
+                { code: 'B4.2-W', name: 'Phòng điện giải B4.2' },
+                { code: 'B11.1-W', name: 'Nấu tương B11.1' },
+                { code: 'B17-W', name: 'Nhà vệ sinh CĐ3 B17' },
+                { code: 'CD3-W-OUT', name: 'Bồn Nước nóng CĐ3 (Ngoài)' },
+                { code: 'B11.2-W', name: 'Rửa dụng cụ CD3 B11.2' }
+            ],
+            electric: [
+                { code: 'MP2.2-01', name: 'Trạm khí gas' },
+                { code: 'MP2.2-02', name: 'Khu vực chiên CĐ2' },
+                { code: 'MP2.3-01', name: 'Khu vực sấy nack CĐ2' },
+                { code: 'MP2.3-02', name: 'Khu vực nướng CĐ2' },
+                { code: 'MP2.3-03', name: 'Khu sấy phôi nack' },
+                { code: 'MP2.3-05', name: 'Máy sắp phôi CĐ2' },
+                { code: 'MP2.3-06', name: 'Máy sấy rong biển CĐ2' },
+                { code: 'MP2.3-07', name: 'Khu đóng gói rong biển CĐ3' },
+                { code: 'MP2.3-08', name: 'Sấy phôi CĐ2' },
+                { code: 'MP2.4-01', name: 'Tủ điện ổ cắm sửa chữa' },
+                { code: 'MP2.4-02', name: 'Sấy bánh tuyết CĐ2' },
+                { code: 'MP2.4-03', name: 'Sấy bánh mỏng CĐ2' },
+                { code: 'MP2.4-04', name: 'Phòng nấu tương CĐ2' },
+                { code: 'MP2.4-05', name: 'Máy lạnh CĐ3' },
+                { code: 'MP2.4-06', name: 'Đóng gói nack CĐ3' },
+                { code: 'MP2.4-08', name: 'Sấy bánh phô mai, bánh đậu CĐ2' },
+                { code: 'MP2.5-02', name: 'Đóng gói sen bei CĐ3' },
+                { code: 'MP2.5-05', name: 'Máy hút chân không CĐ2' },
+                { code: 'MP2.5-06', name: 'Đóng gói bánh tuyết CĐ3' },
+                { code: 'MP2.5-07', name: 'Đóng gói BBMM CĐ3' },
+                { code: 'MP2.6-01', name: 'Khu đóng gói phía ngoài CĐ3' },
+                { code: 'MP2.6-02', name: 'Máy lạnh VP bánh gạo + phòng thay đồ CĐ3' },
+                { code: 'MP2.6-03', name: 'AHU máy lạnh CĐ2' },
+                { code: 'MP2.6-04', name: 'Máy lạnh lưu phôi CĐ1' },
+                { code: 'MP2.6-05', name: 'Kho lạnh + phòng đường CĐ2' },
+                { code: 'MP2.6-07', name: 'Quạt hút đóng gói CĐ3' },
+                { code: 'MP2.7-01', name: 'Khu tạo bột CĐ1' },
+                { code: 'MP2.7-02', name: 'Khu rửa gạo CĐ1' },
+                { code: 'MP2.7-03', name: 'Khu vực nghiền CĐ1' },
+                { code: 'MP2.7-05', name: 'Khu hấp CĐ1' },
+                { code: 'MP2.7-06', name: 'Sấy phôi CĐ1' },
+                { code: 'MP2.11-01', name: 'Máy tạo bột khu 2 CĐ1' },
+                { code: 'MP2.11-02', name: 'Khu hấp thành hình CĐ1' },
+                { code: 'MP2.11-03', name: 'Bánh cuộn (Đóng gói)' }
+            ],
+            gas: [
+                { code: 'GAS-HH', name: 'Công đoạn 2 - Rong biển' },
+                { code: 'GAS-XB', name: 'Công đoạn 2 - Bánh tuyết' },
+                { code: 'GAS-SB', name: 'Công đoạn 2 - Sen bei' },
+                { code: 'GAS-BBMM', name: 'Công đoạn 2 - BBMM' }
+            ],
+            steam: [
+                { code: 'STM-01', name: 'Công đoạn 1 (5#)' },
+                { code: 'STM-02', name: 'Công đoạn 2 - Bánh tuyết (1#)' },
+                { code: 'STM-03', name: 'Công đoạn 2 - Rong biển (2#)' },
+                { code: 'STM-04', name: 'Công đoạn 2 - SNACK (3#)' },
+                { code: 'STM-05', name: 'Công đoạn 3 - Máy khử ẩm (4#)' }
+            ]
+        };
+
+        function onEnergyTypeChange() {
+            const type = document.getElementById('energyType').value;
+            const locationSelect = document.getElementById('locationCode');
+            const productLineGroup = document.getElementById('productLineGroup');
+            const processStepGroup = document.getElementById('processStepGroup');
+
+            // Reset all dropdowns
+            locationSelect.innerHTML = '<option value="">Chọn điểm đo...</option>';
+            document.getElementById('productLine').innerHTML = '<option value="">Chọn dòng sản phẩm...</option>';
+            document.getElementById('processStep').innerHTML = '<option value="">Chọn công đoạn...</option>';
+
+            // Hide all special groups first
+            productLineGroup.style.display = 'none';
+            processStepGroup.style.display = 'none';
+            document.getElementById('locationGroup').style.display = 'block';
+
+            if (!type || !locations[type]) return;
+
+            // Populate location dropdown
+            locations[type].forEach(loc => {
+                const option = document.createElement('option');
+                option.value = loc.code;
+                option.textContent = loc.code + ' - ' + loc.name;
+                locationSelect.appendChild(option);
+            });
+
+            // Show product line dropdown for gas
+            if (type === 'gas') {
+                productLineGroup.style.display = 'block';
+                locations.gas.forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc.code;
+                    option.textContent = loc.code + ' - ' + loc.name;
+                    document.getElementById('productLine').appendChild(option);
+                });
+            }
+
+            // Show process step dropdown for steam
+            if (type === 'steam') {
+                processStepGroup.style.display = 'block';
+                locations.steam.forEach(loc => {
+                    const option = document.createElement('option');
+                    option.value = loc.code;
+                    option.textContent = loc.code + ' - ' + loc.name;
+                    document.getElementById('processStep').appendChild(option);
+                });
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', async function () {
             try {
@@ -784,13 +928,15 @@
         function renderTable(type, data) {
             const tbody = document.getElementById(type + 'TableBody');
             if (data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu ' + type + '</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Chưa có dữ liệu ' + type + '</td></tr>';
                 return;
             }
             tbody.innerHTML = data.map(item => {
                 const price = parseFloat(item.unit_price) || 0;
                 const value = parseFloat(item.reading_value) || 0;
-                return `<tr><td>${item.id}</td><td>${formatDate(item.reading_date)}</td><td>${value.toFixed(2)}</td><td>${formatCurrency(price)}</td><td>${formatCurrency(price * value)}</td><td>${item.notes || '-'}</td>
+                const location = item.location_name_vi || item.location_code || '-';
+                const shiftText = item.shift === 'sang' ? 'Ca Sáng' : (item.shift === 'toi' ? 'Ca Tối' : '-');
+                return `<tr><td>${item.id}</td><td>${formatDate(item.reading_date)}</td><td>${shiftText}</td><td>${location}</td><td>${value.toFixed(2)}</td><td>${formatCurrency(price)}</td><td>${formatCurrency(price * value)}</td><td>${item.notes || '-'}</td>
                     <td><button class="btn btn-sm btn-outline-primary" onclick="editRecord('${type}', ${item.id})"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${type}', ${item.id})"><i class="bi bi-trash"></i></button></td></tr>`;
             }).join('');
         }
@@ -818,6 +964,30 @@
                 document.getElementById('energyValue').value = item.reading_value;
                 document.getElementById('energyPrice').value = item.unit_price || '';
                 document.getElementById('energyNote').value = item.notes || '';
+
+                // Trigger onEnergyTypeChange to populate dropdowns
+                onEnergyTypeChange();
+
+                // Set shift value
+                if (item.shift) {
+                    document.getElementById('energyShift').value = item.shift;
+                }
+
+                // Set location code
+                if (item.location_code) {
+                    document.getElementById('locationCode').value = item.location_code;
+                }
+
+                // Set product line for gas
+                if (type === 'gas' && item.product_line) {
+                    document.getElementById('productLine').value = item.product_line;
+                }
+
+                // Set process step for steam
+                if (type === 'steam' && item.process_step) {
+                    document.getElementById('processStep').value = item.process_step;
+                }
+
                 new bootstrap.Modal(document.getElementById('dataModal')).show();
             }
         }
@@ -840,12 +1010,36 @@
         async function saveData() {
             const id = document.getElementById('dataId').value;
             const type = document.getElementById('energyType').value;
+            const locationCode = document.getElementById('locationCode').value;
+            const shift = document.getElementById('energyShift').value;
+            const productLine = document.getElementById('productLine').value;
+            const processStep = document.getElementById('processStep').value;
+
+            // Get location name from selected option
+            const locationSelect = document.getElementById('locationCode');
+            const locationName = locationCode ? locationSelect.options[locationSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+
             const data = {
                 reading_date: document.getElementById('energyDate').value,
+                shift: shift,
+                location_code: locationCode,
+                location_name_vi: locationName,
                 reading_value: parseFloat(document.getElementById('energyValue').value),
                 unit_price: parseFloat(document.getElementById('energyPrice').value) || 0,
                 notes: document.getElementById('energyNote').value
             };
+
+            // Add type-specific fields
+            if (type === 'gas') {
+                data.product_line = productLine;
+                const productSelect = document.getElementById('productLine');
+                data.product_name_vi = productLine ? productSelect.options[productSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+            }
+            if (type === 'steam') {
+                data.process_step = processStep;
+                const stepSelect = document.getElementById('processStep');
+                data.process_name_vi = processStep ? stepSelect.options[stepSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+            }
 
             try {
                 const table = type + '_readings';
