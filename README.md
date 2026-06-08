@@ -1,7 +1,18 @@
 # Hệ Thống Báo Cáo Năng Lượng
 
 ## Mô tả
-Website quản lý và theo dõi tiêu thụ năng lượng (nước, điện, gas, hơi nước)
+Website quản lý và theo dõi tiêu thụ năng lượng (nước, điện, gas, hơi nước) được tối ưu hóa theo cấu trúc quản lý của nhà máy thực phẩm.
+
+## Tính năng & Cấu trúc dữ liệu mới
+Trang web đã được cập nhật đầy đủ các trường dữ liệu theo cấu trúc file Excel quản lý của nhà máy:
+
+1. **Ca Làm Việc:** Hỗ trợ phân loại dữ liệu theo Ca Sáng / Ca Tối.
+2. **Điểm Đo / Vị Trí:** Khớp hoàn toàn với các điểm đo thực tế:
+   - **Nước (Water):** 7 vị trí (Phòng giặt B12, Khu dầu cọ B4.1, Phòng điện giải B4.2, Nấu tương B11.1, Nhà vệ sinh CĐ3 B17, Bồn nước nóng CĐ3, Rửa dụng cụ CD3 B11.2).
+   - **Điện (Electric):** 33 vị trí (Trạm khí gas, Khu vực chiên CĐ2, Khu vực sấy nack CĐ2, Khu tạo bột CĐ1, Khu rửa gạo CĐ1,... từ MP2.2-01 đến MP2.11-03).
+   - **Gas:** 4 dòng sản phẩm chính (Rong biển, Bánh tuyết, Sen bei, BBMM).
+   - **Hơi Nước (Steam):** 5 công đoạn (Công đoạn 1 đến Công đoạn 3 kèm thiết bị).
+3. **Quản lý dữ liệu:** Bảng dữ liệu hiển thị trực quan thêm cột Ca và Vị Trí, hỗ trợ đầy đủ thêm mới, sửa đổi (`saveData`, `editRecord`) và xóa bản ghi.
 
 ## Công nghệ
 - Frontend: HTML5, Bootstrap 5, Chart.js
@@ -12,28 +23,26 @@ Website quản lý và theo dõi tiêu thụ năng lượng (nước, điện, g
 - URL: https://cvctuowohxagaeprwavl.supabase.co
 
 ## Các bảng dữ liệu
-- water_readings - Dữ liệu nước
-- electric_readings - Dữ liệu điện
-- gas_readings - Dữ liệu gas
-- steam_readings - Dữ liệu hơi nước
+- `water_readings` - Dữ liệu nước
+- `electric_readings` - Dữ liệu điện
+- `gas_readings` - Dữ liệu gas
+- `steam_readings` - Dữ liệu hơi nước
 
 ## Deploy
-### Vercel
-1. Tải folder này về máy
-2. Vào https://vercel.com/new
-3. Import folder `energy-website`
-4. Deploy tự động
+### GitHub Pages (Tên miền hiện tại)
+Trang web đang chạy trực tuyến tại địa chỉ:
+🔗 **[https://landang907-ship-it.github.io/energy-report-system/](https://landang907-ship-it.github.io/energy-report-system/)**
 
-### GitHub Pages
-1. Tạo repo GitHub mới
-2. Upload file `index.html`
-3. Bật GitHub Pages trong Settings
-
-## Cách sử dụng
-1. Mở file `index.html` trên trình duyệt
-2. Hoặc truy cập URL đã deploy
-3. Thêm dữ liệu năng lượng bằng nút "Thêm Mới"
-4. Xem dashboard với biểu đồ và thống kê
+### Hướng dẫn đẩy cập nhật mới lên Web:
+Mỗi khi bạn thay đổi code ở local và muốn cập nhật bản live:
+1. Mở Terminal tại thư mục này.
+2. Chạy lần lượt các lệnh sau:
+   ```bash
+   git add .
+   git commit -m "Mô tả thay đổi của bạn"
+   git push
+   ```
+3. Đợi khoảng 1 phút để GitHub Pages tự động cập nhật phiên bản mới nhất.
 
 ## Cập nhật lần cuối
-2026-06-08
+2026-06-08 (Cập nhật cấu trúc Excel nhà máy thực phẩm)
