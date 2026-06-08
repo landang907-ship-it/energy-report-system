@@ -330,6 +330,9 @@
         <div class="nav-item" onclick="showSection('settings')">
             <i class="bi bi-gear"></i> Cài Đặt
         </div>
+        <div class="nav-item" onclick="showSection('admin')">
+            <i class="bi bi-shield-lock"></i> Quản Lý Admin
+        </div>
         <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
             <small class="text-muted">Kết nối: <span id="connectionStatus" class="text-warning">Đang kiểm
                     tra...</span></small>
@@ -580,6 +583,244 @@
                     <button class="btn btn-primary" onclick="testConnection()">
                         <i class="bi bi-plug"></i> Kiểm Tra Kết Nối
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminSection" style="display: none;">
+            <h4 class="mb-4"><i class="bi bi-shield-lock"></i> Quản Lý Admin</h4>
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#adminUsers">
+                        <i class="bi bi-people"></i> Người Dùng
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#adminLocations">
+                        <i class="bi bi-geo-alt"></i> Vị Trí Đo
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#adminPricing">
+                        <i class="bi bi-currency-dollar"></i> Đơn Giá
+                    </button>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="adminUsers">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-people"></i> Quản Lý Người Dùng</span>
+                            <button class="btn btn-sm btn-light" onclick="showAddUserModal()">
+                                <i class="bi bi-plus-circle"></i> Thêm User
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Email</th>
+                                            <th>Tên</th>
+                                            <th>Vai Trò</th>
+                                            <th>Trạng Thái</th>
+                                            <th>Hành Động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="usersTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="adminLocations">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-geo-alt"></i> Quản Lý Vị Trí Đo</span>
+                            <button class="btn btn-sm btn-light" onclick="showAddLocationModal()">
+                                <i class="bi bi-plus-circle"></i> Thêm Vị Trí
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã</th>
+                                            <th>Tên (VN)</th>
+                                            <th>Tên (CN)</th>
+                                            <th>Loại</th>
+                                            <th>Khu Vực</th>
+                                            <th>Hành Động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="locationsTableBody">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="adminPricing">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="bi bi-currency-dollar"></i> Quản Lý Đơn Giá</span>
+                            <button class="btn btn-sm btn-light" onclick="showAddPricingModal()">
+                                <i class="bi bi-plus-circle"></i> Thêm Đơn Giá
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Loại</th>
+                                            <th>Đơn Giá (VNĐ)</th>
+                                            <th>Đơn Vị</th>
+                                            <th>Ngày Cập Nhật</th>
+                                            <th>Hành Động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pricingTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">Đang tải...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div class="modal fade" id="userModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">Thêm Người Dùng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="userForm">
+                        <input type="hidden" id="userId">
+                        <div class="mb-3">
+                            <label>Email</label>
+                            <input type="email" class="form-control" id="userEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tên</label>
+                            <input type="text" class="form-control" id="userName">
+                        </div>
+                        <div class="mb-3">
+                            <label>Vai Trò</label>
+                            <select class="form-select" id="userRole">
+                                <option value="user">Người Dùng</option>
+                                <option value="admin">Quản Trị</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Location Modal -->
+    <div class="modal fade" id="locationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="locationModalTitle">Thêm Vị Trí</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="locationForm">
+                        <input type="hidden" id="locationId">
+                        <div class="mb-3">
+                            <label>Mã Vị Trí</label>
+                            <input type="text" class="form-control" id="locationCodeInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tên (Tiếng Việt)</label>
+                            <input type="text" class="form-control" id="locationNameViInput" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Tên (Tiếng Trung)</label>
+                            <input type="text" class="form-control" id="locationNameCnInput">
+                        </div>
+                        <div class="mb-3">
+                            <label>Loại Năng Lượng</label>
+                            <select class="form-select" id="locationEnergyType" required>
+                                <option value="">Chọn...</option>
+                                <option value="water">Nước</option>
+                                <option value="electric">Điện</option>
+                                <option value="gas">Gas</option>
+                                <option value="steam">Hơi Nước</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Khu Vực</label>
+                            <input type="text" class="form-control" id="locationArea">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveLocation()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pricing Modal -->
+    <div class="modal fade" id="pricingModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pricingModalTitle">Thêm Đơn Giá</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pricingForm">
+                        <input type="hidden" id="pricingId">
+                        <div class="mb-3">
+                            <label>Loại Năng Lượng</label>
+                            <select class="form-select" id="pricingType" required>
+                                <option value="">Chọn...</option>
+                                <option value="water">Nước</option>
+                                <option value="electric">Điện</option>
+                                <option value="gas">Gas</option>
+                                <option value="steam">Hơi Nước</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Đơn Giá (VNĐ)</label>
+                            <input type="number" class="form-control" id="pricingValue" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Đơn Vị</label>
+                            <input type="text" class="form-control" id="pricingUnit"
+                                placeholder="ví dụ: m³, kWh, m³, kg">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="savePricing()">Lưu</button>
                 </div>
             </div>
         </div>
@@ -1116,6 +1357,272 @@
             container.appendChild(toast);
             new bootstrap.Toast(toast).show();
             setTimeout(() => toast.remove(), 5000);
+        }
+
+        // ============ ADMIN FUNCTIONS ============
+
+        // Show add user modal
+        function showAddUserModal() {
+            document.getElementById('userModalTitle').textContent = 'Thêm Người Dùng';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            new bootstrap.Modal(document.getElementById('userModal')).show();
+        }
+
+        // Save user
+        async function saveUser() {
+            const id = document.getElementById('userId').value;
+            const data = {
+                email: document.getElementById('userEmail').value,
+                name: document.getElementById('userName').value,
+                role: document.getElementById('userRole').value
+            };
+            try {
+                if (id) {
+                    await supabase.from('users').update(data).eq('id', id);
+                } else {
+                    await supabase.from('users').insert([data]);
+                }
+                loadUsers();
+                bootstrap.Modal.getInstance(document.getElementById('userModal')).hide();
+                showToast('Đã lưu người dùng', 'success');
+            } catch (error) {
+                showToast('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        // Load users
+        async function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            try {
+                const { data, error } = await supabase.from('users').select('*').order('id');
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Chưa có người dùng</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = data.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.email}</td>
+                        <td>${user.name || '-'}</td>
+                        <td><span class="badge bg-${user.role === 'admin' ? 'danger' : 'primary'}">${user.role === 'admin' ? 'Quản Trị' : 'Người Dùng'}</span></td>
+                        <td><span class="badge bg-success">Hoạt động</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editUser(${user.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>';
+            }
+        }
+
+        // Edit user
+        async function editUser(id) {
+            const { data } = await supabase.from('users').select('*').eq('id', id).single();
+            if (data) {
+                document.getElementById('userModalTitle').textContent = 'Sửa Người Dùng';
+                document.getElementById('userId').value = data.id;
+                document.getElementById('userEmail').value = data.email;
+                document.getElementById('userName').value = data.name || '';
+                document.getElementById('userRole').value = data.role || 'user';
+                new bootstrap.Modal(document.getElementById('userModal')).show();
+            }
+        }
+
+        // Delete user
+        async function deleteUser(id) {
+            if (!confirm('Xóa người dùng này?')) return;
+            await supabase.from('users').delete().eq('id', id);
+            loadUsers();
+            showToast('Đã xóa người dùng', 'success');
+        }
+
+        // Show add location modal
+        function showAddLocationModal() {
+            document.getElementById('locationModalTitle').textContent = 'Thêm Vị Trí';
+            document.getElementById('locationForm').reset();
+            document.getElementById('locationId').value = '';
+            new bootstrap.Modal(document.getElementById('locationModal')).show();
+        }
+
+        // Save location
+        async function saveLocation() {
+            const id = document.getElementById('locationId').value;
+            const data = {
+                code: document.getElementById('locationCodeInput').value,
+                name_vi: document.getElementById('locationNameViInput').value,
+                name_cn: document.getElementById('locationNameCnInput').value,
+                energy_type: document.getElementById('locationEnergyType').value,
+                area: document.getElementById('locationArea').value
+            };
+            try {
+                if (id) {
+                    await supabase.from('locations').update(data).eq('id', id);
+                } else {
+                    await supabase.from('locations').insert([data]);
+                }
+                loadLocations();
+                bootstrap.Modal.getInstance(document.getElementById('locationModal')).hide();
+                showToast('Đã lưu vị trí', 'success');
+            } catch (error) {
+                showToast('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        // Load locations
+        async function loadLocations() {
+            const tbody = document.getElementById('locationsTableBody');
+            try {
+                const { data, error } = await supabase.from('locations').select('*').order('code');
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Chưa có vị trí</td></tr>';
+                    return;
+                }
+                const typeNames = { water: 'Nước', electric: 'Điện', gas: 'Gas', steam: 'Hơi Nước' };
+                tbody.innerHTML = data.map(loc => `
+                    <tr>
+                        <td>${loc.code}</td>
+                        <td>${loc.name_vi}</td>
+                        <td>${loc.name_cn || '-'}</td>
+                        <td>${typeNames[loc.energy_type] || loc.energy_type}</td>
+                        <td>${loc.area || '-'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editLocation(${loc.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation(${loc.id})"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>';
+            }
+        }
+
+        // Edit location
+        async function editLocation(id) {
+            const { data } = await supabase.from('locations').select('*').eq('id', id).single();
+            if (data) {
+                document.getElementById('locationModalTitle').textContent = 'Sửa Vị Trí';
+                document.getElementById('locationId').value = data.id;
+                document.getElementById('locationCodeInput').value = data.code;
+                document.getElementById('locationNameViInput').value = data.name_vi;
+                document.getElementById('locationNameCnInput').value = data.name_cn || '';
+                document.getElementById('locationEnergyType').value = data.energy_type;
+                document.getElementById('locationArea').value = data.area || '';
+                new bootstrap.Modal(document.getElementById('locationModal')).show();
+            }
+        }
+
+        // Delete location
+        async function deleteLocation(id) {
+            if (!confirm('Xóa vị trí này?')) return;
+            await supabase.from('locations').delete().eq('id', id);
+            loadLocations();
+            showToast('Đã xóa vị trí', 'success');
+        }
+
+        // Show add pricing modal
+        function showAddPricingModal() {
+            document.getElementById('pricingModalTitle').textContent = 'Thêm Đơn Giá';
+            document.getElementById('pricingForm').reset();
+            document.getElementById('pricingId').value = '';
+            new bootstrap.Modal(document.getElementById('pricingModal')).show();
+        }
+
+        // Save pricing
+        async function savePricing() {
+            const id = document.getElementById('pricingId').value;
+            const data = {
+                energy_type: document.getElementById('pricingType').value,
+                price: parseFloat(document.getElementById('pricingValue').value),
+                unit: document.getElementById('pricingUnit').value,
+                updated_at: new Date().toISOString()
+            };
+            try {
+                if (id) {
+                    await supabase.from('pricing').update(data).eq('id', id);
+                } else {
+                    await supabase.from('pricing').insert([data]);
+                }
+                loadPricing();
+                bootstrap.Modal.getInstance(document.getElementById('pricingModal')).hide();
+                showToast('Đã lưu đơn giá', 'success');
+            } catch (error) {
+                showToast('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        // Load pricing
+        async function loadPricing() {
+            const tbody = document.getElementById('pricingTableBody');
+            try {
+                const { data, error } = await supabase.from('pricing').select('*').order('energy_type');
+                if (error) throw error;
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Chưa có đơn giá</td></tr>';
+                    return;
+                }
+                const typeNames = { water: 'Nước', electric: 'Điện', gas: 'Gas', steam: 'Hơi Nước' };
+                tbody.innerHTML = data.map(p => `
+                    <tr>
+                        <td>${typeNames[p.energy_type] || p.energy_type}</td>
+                        <td>${formatCurrency(p.price)}</td>
+                        <td>${p.unit || '-'}</td>
+                        <td>${formatDate(p.updated_at)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editPricing(${p.id})"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deletePricing(${p.id})"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Lỗi tải dữ liệu</td></tr>';
+            }
+        }
+
+        // Edit pricing
+        async function editPricing(id) {
+            const { data } = await supabase.from('pricing').select('*').eq('id', id).single();
+            if (data) {
+                document.getElementById('pricingModalTitle').textContent = 'Sửa Đơn Giá';
+                document.getElementById('pricingId').value = data.id;
+                document.getElementById('pricingType').value = data.energy_type;
+                document.getElementById('pricingValue').value = data.price;
+                document.getElementById('pricingUnit').value = data.unit || '';
+                new bootstrap.Modal(document.getElementById('pricingModal')).show();
+            }
+        }
+
+        // Delete pricing
+        async function deletePricing(id) {
+            if (!confirm('Xóa đơn giá này?')) return;
+            await supabase.from('pricing').delete().eq('id', id);
+            loadPricing();
+            showToast('Đã xóa đơn giá', 'success');
+        }
+
+        // Load admin data when admin section is shown
+        function showSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.style.display = 'none');
+            document.getElementById(section + 'Section').style.display = 'block';
+
+            switch (section) {
+                case 'water': renderTable('water', allData.water); break;
+                case 'electric': renderTable('electric', allData.electric); break;
+                case 'gas': renderTable('gas', allData.gas); break;
+                case 'steam': renderTable('steam', allData.steam); break;
+                case 'admin':
+                    loadUsers();
+                    loadLocations();
+                    loadPricing();
+                    break;
+            }
+            if (window.innerWidth <= 992) toggleSidebar();
         }
     </script>
 </body>
