@@ -13,6 +13,10 @@ Trang web đã được cập nhật đầy đủ các trường dữ liệu the
    - **Gas:** 4 dòng sản phẩm chính (Rong biển, Bánh tuyết, Sen bei, BBMM).
    - **Hơi Nước (Steam):** 5 công đoạn (Công đoạn 1 đến Công đoạn 3 kèm thiết bị).
 3. **Quản lý dữ liệu:** Bảng dữ liệu hiển thị trực quan thêm cột Ca và Vị Trí, hỗ trợ đầy đủ thêm mới, sửa đổi (`saveData`, `editRecord`) và xóa bản ghi.
+4. **Quản Lý Admin:** Bổ sung giao diện quản trị viên chuyên dụng chia thành 3 phần:
+   - **Người Dùng:** Thêm, sửa, xóa tài khoản (Email, Tên, Vai trò: User/Admin).
+   - **Vị Trí Đo:** Quản lý cấu hình các điểm đo năng lượng (Mã, Tên tiếng Việt, Tên tiếng Trung, Loại năng lượng, Khu vực).
+   - **Đơn Giá:** Cấu hình đơn giá năng lượng (Loại, Giá VNĐ, Đơn vị).
 
 ## Công nghệ
 - Frontend: HTML5, Bootstrap 5, Chart.js
@@ -27,6 +31,9 @@ Trang web đã được cập nhật đầy đủ các trường dữ liệu the
 - `electric_readings` - Dữ liệu điện
 - `gas_readings` - Dữ liệu gas
 - `steam_readings` - Dữ liệu hơi nước
+- `users` - Dữ liệu tài khoản người dùng
+- `locations` - Danh mục các vị trí đo năng lượng
+- `pricing` - Đơn giá năng lượng theo loại
 
 ## Deploy
 ### GitHub Pages (Tên miền hiện tại)
