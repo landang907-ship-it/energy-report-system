@@ -346,8 +346,11 @@
                 <small class="text-muted">Theo dõi và quản lý tiêu thụ năng lượng</small>
             </div>
             <div class="d-flex gap-2">
+                <button class="btn btn-outline-success" onclick="exportToExcel()">
+                    <i class="bi bi-file-earmark-excel"></i> Xuất Excel
+                </button>
                 <button class="btn btn-outline-primary" onclick="exportData()">
-                    <i class="bi bi-download"></i> Xuất Dữ Liệu
+                    <i class="bi bi-download"></i> JSON
                 </button>
                 <button class="btn btn-primary" onclick="showAddModal()">
                     <i class="bi bi-plus-circle"></i> Thêm Mới
@@ -903,6 +906,7 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script>
         const SUPABASE_URL = 'https://cvctuowohxagaeprwavl.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2Y3R1b3dvaHhhZ2FlcHJ3YXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4OTQ0MjksImV4cCI6MjA5NjQ3MDQyOX0.AEIVcumi7QgjwVmzsJZx6IWleS883r7MNODEFjnnBOs';
@@ -1330,6 +1334,131 @@
             document.getElementById('reportContent').innerHTML = html;
         }
 
+        // Export to Excel XLSX
+        function exportToExcel() {
+            const type = document.getElementById('reportType')?.value || 'all';
+            const month = document.getElementById('reportMonth')?.value || '';
+
+            const typeNames = { water: 'Nước', electric: 'Điện', gas: 'Gas', steam: 'Hơi Nước' };
+            const typeUnits = { water: 'm³', electric: 'kWh', gas: 'm³', steam: 'ton' };
+            const shiftNames = { sang: 'Ca Sáng', toi: 'Ca Tối' };
+
+            const types = type === 'all' ? ['water', 'electric', 'gas', 'steam'] : [type];
+            const workbook = XLSX.utils.book_new();
+
+            types.forEach(t => {
+                let data = allData[t];
+                if (month) {
+                    data = data.filter(d => d.reading_date && d.reading_date.startsWith(month));
+                }
+
+                if (data.length === 0) return;
+
+                // Prepare worksheet data
+                let wsData = [];
+                if (t === 'gas') {
+                    wsData = [
+                        ['BÁO CÁO GAS - ' + typeNames[t]],
+                        ['Ngày xuất: ' + new Date().toLocaleDateString('vi-VN')],
+                        [],
+                        ['ID', 'Ngày', 'Ca', 'Dòng SP', 'Tên (VN)', 'Tên (CN)', 'Chỉ Số', 'Đơn Giá', 'Thành Tiền', 'Ghi Chú']
+                    ];
+                    data.forEach(item => {
+                        const price = parseFloat(item.unit_price) || 0;
+                        const value = parseFloat(item.reading_value) || 0;
+                        wsData.push([
+                            item.id,
+                            formatDate(item.reading_date),
+                            shiftNames[item.shift] || item.shift,
+                            item.product_line || '-',
+                            item.product_name_vi || '-',
+                            item.product_name_cn || '-',
+                            value,
+                            price,
+                            price * value,
+                            item.notes || ''
+                        ]);
+                    });
+                } else if (t === 'steam') {
+                    wsData = [
+                        ['BÁO CÁO HƠI NƯỚC - ' + typeNames[t]],
+                        ['Ngày xuất: ' + new Date().toLocaleDateString('vi-VN')],
+                        [],
+                        ['ID', 'Ngày', 'Ca', 'Công Đoạn', 'Tên (VN)', 'Tên (CN)', 'Chỉ Số', 'Đơn Giá', 'Thành Tiền', 'Ghi Chú']
+                    ];
+                    data.forEach(item => {
+                        const price = parseFloat(item.unit_price) || 0;
+                        const value = parseFloat(item.reading_value) || 0;
+                        wsData.push([
+                            item.id,
+                            formatDate(item.reading_date),
+                            shiftNames[item.shift] || item.shift,
+                            item.process_step || '-',
+                            item.process_name_vi || '-',
+                            item.process_name_cn || '-',
+                            value,
+                            price,
+                            price * value,
+                            item.notes || ''
+                        ]);
+                    });
+                } else {
+                    wsData = [
+                        ['BÁO CÁO ' + typeNames[t].toUpperCase()],
+                        ['Ngày xuất: ' + new Date().toLocaleDateString('vi-VN')],
+                        [],
+                        ['ID', 'Ngày', 'Ca', 'Mã Vị Trí', 'Tên (VN)', 'Tên (CN)', 'Chỉ Số (' + typeUnits[t] + ')', 'Đơn Giá (VNĐ)', 'Thành Tiền', 'Ghi Chú']
+                    ];
+                    data.forEach(item => {
+                        const price = parseFloat(item.unit_price) || 0;
+                        const value = parseFloat(item.reading_value) || 0;
+                        wsData.push([
+                            item.id,
+                            formatDate(item.reading_date),
+                            shiftNames[item.shift] || item.shift,
+                            item.location_code || '-',
+                            item.location_name_vi || '-',
+                            item.location_name_cn || '-',
+                            value,
+                            price,
+                            price * value,
+                            item.notes || ''
+                        ]);
+                    });
+                }
+
+                // Calculate totals
+                const totalValue = data.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0);
+                const totalCost = data.reduce((s, i) => s + ((parseFloat(i.reading_value) || 0) * (parseFloat(i.unit_price) || 0)), 0);
+                wsData.push([]);
+                wsData.push(['TỔNG CỘNG', '', '', '', '', '', totalValue, '', totalCost]);
+
+                const worksheet = XLSX.utils.aoa_to_sheet(wsData);
+
+                // Set column widths
+                worksheet['!cols'] = [
+                    { wch: 5 },   // ID
+                    { wch: 12 },  // Ngày
+                    { wch: 10 },  // Ca
+                    { wch: 15 },  // Mã/Dòng/Công đoạn
+                    { wch: 25 },  // Tên VN
+                    { wch: 25 },  // Tên CN
+                    { wch: 12 },  // Chỉ số
+                    { wch: 15 },  // Đơn giá
+                    { wch: 15 },  // Thành tiền
+                    { wch: 30 }   // Ghi chú
+                ];
+
+                XLSX.utils.book_append_sheet(workbook, worksheet, typeNames[t]);
+            });
+
+            // Generate and download
+            const fileName = 'Bao-Cao-Nang-Luong-' + (month || new Date().toISOString().slice(0, 7)) + '.xlsx';
+            XLSX.writeFile(workbook, fileName);
+            showToast('Đã xuất file Excel!', 'success');
+        }
+
+        // Old JSON export (keep as backup)
         function exportData() {
             const data = { water: allData.water, electric: allData.electric, gas: allData.gas, steam: allData.steam };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
