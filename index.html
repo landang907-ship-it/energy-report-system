@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Báo Cáo Năng Lượng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.43.4/dist/umd/supabase.js"></script>
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --light-bg: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--light-bg);
+            margin: 0;
+            padding: 0;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar h4 {
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: var(--accent-color);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 25px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border-radius: 12px 12px 0 0 !important;
+            padding: 15px 20px;
+            font-weight: 600;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 25px;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .water-icon {
+            color: #3498db;
+        }
+
+        .electric-icon {
+            color: #f1c40f;
+        }
+
+        .gas-icon {
+            color: #e74c3c;
+        }
+
+        .steam-icon {
+            color: #9b59b6;
+        }
+
+        .table-responsive {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            padding: 10px 15px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .toggle-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        @media (max-width: 992px) {
+            .toggle-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-spinner.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            padding: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <button class="toggle-btn" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+    <div class="overlay" onclick="toggleSidebar()"></div>
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner"></div>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="sidebar" id="sidebar">
+        <h4><i class="bi bi-lightning-charge"></i> Báo Cáo Năng Lượng</h4>
+        <div class="nav-item active" onclick="showSection('dashboard')">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </div>
+        <div class="nav-item" onclick="showSection('water')">
+            <i class="bi bi-droplet"></i> Nước
+        </div>
+        <div class="nav-item" onclick="showSection('electric')">
+            <i class="bi bi-lightning"></i> Điện
+        </div>
+        <div class="nav-item" onclick="showSection('gas')">
+            <i class="bi bi-fire"></i> Gas
+        </div>
+        <div class="nav-item" onclick="showSection('steam')">
+            <i class="bi bi-cloud"></i> Hơi Nước
+        </div>
+        <div class="nav-item" onclick="showSection('report')">
+            <i class="bi bi-file-earmark-bar-graph"></i> Báo Cáo
+        </div>
+        <div class="nav-item" onclick="showSection('settings')">
+            <i class="bi bi-gear"></i> Cài Đặt
+        </div>
+        <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.2);">
+            <small class="text-muted">Kết nối: <span id="connectionStatus" class="text-warning">Đang kiểm
+                    tra...</span></small>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="header">
+            <div>
+                <h2 class="mb-1">Hệ Thống Báo Cáo Năng Lượng</h2>
+                <small class="text-muted">Theo dõi và quản lý tiêu thụ năng lượng</small>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-primary" onclick="exportData()">
+                    <i class="bi bi-download"></i> Xuất Dữ Liệu
+                </button>
+                <button class="btn btn-primary" onclick="showAddModal()">
+                    <i class="bi bi-plus-circle"></i> Thêm Mới
+                </button>
+            </div>
+        </div>
+
+        <div id="dashboardSection">
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-icon water-icon"><i class="bi bi-droplet-fill"></i></div>
+                        <div class="stat-value" id="waterTotal">0</div>
+                        <div class="stat-label">Tổng Nước (m³)</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-icon electric-icon"><i class="bi bi-lightning-fill"></i></div>
+                        <div class="stat-value" id="electricTotal">0</div>
+                        <div class="stat-label">Tổng Điện (kWh)</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-icon gas-icon"><i class="bi bi-fire"></i></div>
+                        <div class="stat-value" id="gasTotal">0</div>
+                        <div class="stat-label">Tổng Gas (m³)</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card stat-card">
+                        <div class="stat-icon steam-icon"><i class="bi bi-cloud-fill"></i></div>
+                        <div class="stat-value" id="steamTotal">0</div>
+                        <div class="stat-label">Tổng Hơi Nước (ton)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-graph-up"></i> Biểu Đồ Tiêu Thụ Theo Tháng</div>
+                        <div class="card-body">
+                            <div class="chart-container"><canvas id="monthlyChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header"><i class="bi bi-pie-chart"></i> Tỷ Lệ Tiêu Thụ</div>
+                        <div class="card-body">
+                            <div class="chart-container"><canvas id="consumptionPieChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header"><i class="bi bi-clock-history"></i> Hoạt Động Gần Đây</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Loại</th>
+                                    <th>Giá Trị</th>
+                                    <th>Ghi Chú</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentActivityTable">
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Đang tải dữ liệu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="waterSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-droplet"></i> Báo Cáo Nước</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ngày</th>
+                                    <th>Chỉ Số</th>
+                                    <th>Đơn Giá</th>
+                                    <th>Thành Tiền</th>
+                                    <th>Ghi Chú</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waterTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="electricSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-lightning"></i> Báo Cáo Điện</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ngày</th>
+                                    <th>Chỉ Số</th>
+                                    <th>Đơn Giá</th>
+                                    <th>Thành Tiền</th>
+                                    <th>Ghi Chú</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="electricTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gasSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-fire"></i> Báo Cáo Gas</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ngày</th>
+                                    <th>Chỉ Số</th>
+                                    <th>Đơn Giá</th>
+                                    <th>Thành Tiền</th>
+                                    <th>Ghi Chú</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gasTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="steamSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-cloud"></i> Báo Cáo Hơi Nước</div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Ngày</th>
+                                    <th>Chỉ Số</th>
+                                    <th>Đơn Giá</th>
+                                    <th>Thành Tiền</th>
+                                    <th>Ghi Chú</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="steamTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="reportSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-file-earmark-bar-graph"></i> Tạo Báo Cáo</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label>Loại Báo Cáo</label>
+                                <select class="form-select" id="reportType">
+                                    <option value="all">Tất Cả</option>
+                                    <option value="water">Nước</option>
+                                    <option value="electric">Điện</option>
+                                    <option value="gas">Gas</option>
+                                    <option value="steam">Hơi Nước</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label>Tháng</label>
+                                <input type="month" class="form-control" id="reportMonth">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <i class="bi bi-file-text"></i> Tạo Báo Cáo
+                    </button>
+                    <div id="reportContent" class="mt-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="settingsSection" style="display: none;">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-gear"></i> Cài Đặt Hệ Thống</div>
+                <div class="card-body">
+                    <h5>Cấu Hình Supabase</h5>
+                    <div class="mb-3">
+                        <label>Supabase URL</label>
+                        <input type="text" class="form-control" id="supabaseUrl"
+                            value="https://cvctuowohxagaeprwavl.supabase.co" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label>Anon Key</label>
+                        <input type="text" class="form-control" id="anonKey"
+                            value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2Y3R1b3dvaHhhZ2FlcHJ3YXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4OTQ0MjksImV4cCI6MjA5NjQ3MDQyOX0.AEIVcumi7QgjwVmzsJZx6IWleS883r7MNODEFjnnBOs"
+                            readonly>
+                    </div>
+                    <button class="btn btn-primary" onclick="testConnection()">
+                        <i class="bi bi-plug"></i> Kiểm Tra Kết Nối
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="dataModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Thêm Mới Dữ Liệu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="dataForm">
+                        <input type="hidden" id="dataId">
+                        <div class="mb-3">
+                            <label>Loại Năng Lượng</label>
+                            <select class="form-select" id="energyType" required>
+                                <option value="">Chọn loại...</option>
+                                <option value="water">Nước</option>
+                                <option value="electric">Điện</option>
+                                <option value="gas">Gas</option>
+                                <option value="steam">Hơi Nước</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Ngày</label>
+                            <input type="date" class="form-control" id="energyDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Chỉ Số</label>
+                            <input type="number" class="form-control" id="energyValue" step="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Đơn Giá (VNĐ)</label>
+                            <input type="number" class="form-control" id="energyPrice">
+                        </div>
+                        <div class="mb-3">
+                            <label>Ghi Chú</label>
+                            <textarea class="form-control" id="energyNote" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveData()">
+                        <i class="bi bi-check-circle"></i> Lưu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script>
+        const SUPABASE_URL = 'https://cvctuowohxagaeprwavl.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN2Y3R1b3dvaHhhZ2FlcHJ3YXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4OTQ0MjksImV4cCI6MjA5NjQ3MDQyOX0.AEIVcumi7QgjwVmzsJZx6IWleS883r7MNODEFjnnBOs';
+
+        let supabase;
+        let monthlyChart = null;
+        let pieChart = null;
+        let allData = { water: [], electric: [], gas: [], steam: [] };
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            try {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                await testConnection();
+                await loadAllData();
+                updateDashboard();
+                document.getElementById('energyDate').value = new Date().toISOString().split('T')[0];
+            } catch (error) {
+                console.error('Init error:', error);
+                showToast('Lỗi khởi tạo', 'danger');
+            }
+        });
+
+        async function testConnection() {
+            const statusEl = document.getElementById('connectionStatus');
+            try {
+                const { error } = await supabase.from('water_readings').select('id').limit(1);
+                if (!error) {
+                    statusEl.textContent = 'Đã kết nối';
+                    statusEl.className = 'text-success';
+                    return true;
+                }
+            } catch (e) { }
+            statusEl.textContent = 'Chưa kết nối';
+            statusEl.className = 'text-warning';
+            return false;
+        }
+
+        async function loadAllData() {
+            try {
+                const [water, electric, gas, steam] = await Promise.all([
+                    supabase.from('water_readings').select('*').order('reading_date', { ascending: false }),
+                    supabase.from('electric_readings').select('*').order('reading_date', { ascending: false }),
+                    supabase.from('gas_readings').select('*').order('reading_date', { ascending: false }),
+                    supabase.from('steam_readings').select('*').order('reading_date', { ascending: false })
+                ]);
+                allData.water = water.data || [];
+                allData.electric = electric.data || [];
+                allData.gas = gas.data || [];
+                allData.steam = steam.data || [];
+            } catch (error) {
+                console.error('Load error:', error);
+            }
+        }
+
+        function updateDashboard() {
+            const waterTotal = allData.water.reduce((sum, item) => sum + (parseFloat(item.reading_value) || 0), 0);
+            const electricTotal = allData.electric.reduce((sum, item) => sum + (parseFloat(item.reading_value) || 0), 0);
+            const gasTotal = allData.gas.reduce((sum, item) => sum + (parseFloat(item.reading_value) || 0), 0);
+            const steamTotal = allData.steam.reduce((sum, item) => sum + (parseFloat(item.reading_value) || 0), 0);
+
+            document.getElementById('waterTotal').textContent = waterTotal.toFixed(2);
+            document.getElementById('electricTotal').textContent = electricTotal.toFixed(2);
+            document.getElementById('gasTotal').textContent = gasTotal.toFixed(2);
+            document.getElementById('steamTotal').textContent = steamTotal.toFixed(2);
+
+            updateRecentActivity();
+            updateCharts();
+        }
+
+        function updateRecentActivity() {
+            const tableBody = document.getElementById('recentActivityTable');
+            const allReadings = [
+                ...allData.water.map(item => ({ ...item, typeName: 'Nước' })),
+                ...allData.electric.map(item => ({ ...item, typeName: 'Điện' })),
+                ...allData.gas.map(item => ({ ...item, typeName: 'Gas' })),
+                ...allData.steam.map(item => ({ ...item, typeName: 'Hơi Nước' }))
+            ].sort((a, b) => new Date(b.reading_date) - new Date(a.reading_date)).slice(0, 10);
+
+            if (allReadings.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Chưa có dữ liệu</td></tr>';
+                return;
+            }
+            tableBody.innerHTML = allReadings.map(item => `
+                <tr><td>${formatDate(item.reading_date)}</td>
+                    <td><span class="badge bg-primary">${item.typeName}</span></td>
+                    <td>${item.reading_value}</td>
+                    <td>${item.notes || '-'}</td></tr>
+            `).join('');
+        }
+
+        function updateCharts() {
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            const months = [];
+            const waterData = [], electricData = [], gasData = [], steamData = [];
+
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date();
+                date.setMonth(date.getMonth() - i);
+                const monthStr = date.toISOString().slice(0, 7);
+                months.push(monthStr);
+                waterData.push(allData.water.filter(w => w.reading_date && w.reading_date.startsWith(monthStr)).reduce((s, w) => s + (parseFloat(w.reading_value) || 0), 0));
+                electricData.push(allData.electric.filter(e => e.reading_date && e.reading_date.startsWith(monthStr)).reduce((s, e) => s + (parseFloat(e.reading_value) || 0), 0));
+                gasData.push(allData.gas.filter(g => g.reading_date && g.reading_date.startsWith(monthStr)).reduce((s, g) => s + (parseFloat(g.reading_value) || 0), 0));
+                steamData.push(allData.steam.filter(s => s.reading_date && s.reading_date.startsWith(monthStr)).reduce((sum, s) => sum + (parseFloat(s.reading_value) || 0), 0));
+            }
+
+            if (monthlyChart) monthlyChart.destroy();
+            monthlyChart = new Chart(monthlyCtx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        { label: 'Nước (m³)', data: waterData, borderColor: '#3498db', backgroundColor: 'rgba(52,152,219,0.1)', tension: 0.4 },
+                        { label: 'Điện (kWh)', data: electricData, borderColor: '#f1c40f', backgroundColor: 'rgba(241,196,15,0.1)', tension: 0.4 },
+                        { label: 'Gas (m³)', data: gasData, borderColor: '#e74c3c', backgroundColor: 'rgba(231,76,60,0.1)', tension: 0.4 },
+                        { label: 'Hơi Nước (ton)', data: steamData, borderColor: '#9b59b6', backgroundColor: 'rgba(155,89,182,0.1)', tension: 0.4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+            });
+
+            const pieCtx = document.getElementById('consumptionPieChart').getContext('2d');
+            const totals = [
+                allData.water.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0),
+                allData.electric.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0),
+                allData.gas.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0),
+                allData.steam.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0)
+            ];
+
+            if (pieChart) pieChart.destroy();
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: { labels: ['Nước', 'Điện', 'Gas', 'Hơi Nước'], datasets: [{ data: totals, backgroundColor: ['#3498db', '#f1c40f', '#e74c3c', '#9b59b6'] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+            });
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.nav-item').classList.add('active');
+            document.querySelectorAll('[id$="Section"]').forEach(el => el.style.display = 'none');
+            document.getElementById(section + 'Section').style.display = 'block';
+
+            switch (section) {
+                case 'water': renderTable('water', allData.water); break;
+                case 'electric': renderTable('electric', allData.electric); break;
+                case 'gas': renderTable('gas', allData.gas); break;
+                case 'steam': renderTable('steam', allData.steam); break;
+            }
+            if (window.innerWidth <= 992) toggleSidebar();
+        }
+
+        function renderTable(type, data) {
+            const tbody = document.getElementById(type + 'TableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu ' + type + '</td></tr>';
+                return;
+            }
+            tbody.innerHTML = data.map(item => {
+                const price = parseFloat(item.unit_price) || 0;
+                const value = parseFloat(item.reading_value) || 0;
+                return `<tr><td>${item.id}</td><td>${formatDate(item.reading_date)}</td><td>${value.toFixed(2)}</td><td>${formatCurrency(price)}</td><td>${formatCurrency(price * value)}</td><td>${item.notes || '-'}</td>
+                    <td><button class="btn btn-sm btn-outline-primary" onclick="editRecord('${type}', ${item.id})"><i class="bi bi-pencil"></i></button> <button class="btn btn-sm btn-outline-danger" onclick="deleteRecord('${type}', ${item.id})"><i class="bi bi-trash"></i></button></td></tr>`;
+            }).join('');
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Thêm Mới Dữ Liệu';
+            document.getElementById('dataForm').reset();
+            document.getElementById('dataId').value = '';
+            document.getElementById('energyDate').value = new Date().toISOString().split('T')[0];
+            new bootstrap.Modal(document.getElementById('dataModal')).show();
+        }
+
+        async function editRecord(type, id) {
+            let item = allData[type].find(i => i.id === id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Dữ Liệu';
+                document.getElementById('dataId').value = id;
+                document.getElementById('energyType').value = type;
+                document.getElementById('energyDate').value = item.reading_date;
+                document.getElementById('energyValue').value = item.reading_value;
+                document.getElementById('energyPrice').value = item.unit_price || '';
+                document.getElementById('energyNote').value = item.notes || '';
+                new bootstrap.Modal(document.getElementById('dataModal')).show();
+            }
+        }
+
+        async function deleteRecord(type, id) {
+            if (!confirm('Bạn có chắc muốn xóa?')) return;
+            try {
+                const table = type + '_readings';
+                const { error } = await supabase.from(table).delete().eq('id', id);
+                if (error) throw error;
+                await loadAllData();
+                updateDashboard();
+                showSection(type);
+                showToast('Đã xóa', 'success');
+            } catch (error) {
+                showToast('Lỗi xóa: ' + error.message, 'danger');
+            }
+        }
+
+        async function saveData() {
+            const id = document.getElementById('dataId').value;
+            const type = document.getElementById('energyType').value;
+            const data = {
+                reading_date: document.getElementById('energyDate').value,
+                reading_value: parseFloat(document.getElementById('energyValue').value),
+                unit_price: parseFloat(document.getElementById('energyPrice').value) || 0,
+                notes: document.getElementById('energyNote').value
+            };
+
+            try {
+                const table = type + '_readings';
+                if (id) {
+                    await supabase.from(table).update(data).eq('id', id);
+                } else {
+                    await supabase.from(table).insert([data]);
+                }
+                await loadAllData();
+                updateDashboard();
+                bootstrap.Modal.getInstance(document.getElementById('dataModal')).hide();
+                showSection(type);
+                showToast('Đã lưu', 'success');
+            } catch (error) {
+                showToast('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        function generateReport() {
+            const type = document.getElementById('reportType').value;
+            const month = document.getElementById('reportMonth').value;
+            let html = '<h5>Báo Cáo ' + (month || 'Tháng hiện tại') + '</h5>';
+
+            const types = type === 'all' ? ['water', 'electric', 'gas', 'steam'] : [type];
+            const names = { water: 'Nước', electric: 'Điện', gas: 'Gas', steam: 'Hơi Nước' };
+            const units = { water: 'm³', electric: 'kWh', gas: 'm³', steam: 'ton' };
+
+            types.forEach(t => {
+                const data = allData[t].filter(d => !month || d.reading_date.startsWith(month));
+                const total = data.reduce((s, i) => s + (parseFloat(i.reading_value) || 0), 0);
+                const cost = data.reduce((s, i) => s + ((parseFloat(i.reading_value) || 0) * (parseFloat(i.unit_price) || 0)), 0);
+                html += `<p><strong>${names[t]}:</strong> ${total.toFixed(2)} ${units[t]} - ${formatCurrency(cost)}</p>`;
+            });
+
+            document.getElementById('reportContent').innerHTML = html;
+        }
+
+        function exportData() {
+            const data = { water: allData.water, electric: allData.electric, gas: allData.gas, steam: allData.steam };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'energy-report-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+        }
+
+        function formatDate(date) {
+            return date ? new Date(date).toLocaleDateString('vi-VN') : '-';
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0);
+        }
+
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-' + type + ' border-0';
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
+            container.appendChild(toast);
+            new bootstrap.Toast(toast).show();
+            setTimeout(() => toast.remove(), 5000);
+        }
+    </script>
+</body>
+
+</html>
