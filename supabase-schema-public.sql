@@ -33,9 +33,13 @@ create index if not exists water_readings_location_idx on water_readings(locatio
 
 -- RLS Policy - PUBLIC ACCESS (cho phép anonymous)
 alter table water_readings enable row level security;
+drop policy if exists "Public read access" on water_readings;
 create policy "Public read access" on water_readings for select to anon using (true);
+drop policy if exists "Public insert access" on water_readings;
 create policy "Public insert access" on water_readings for insert to anon with check (true);
+drop policy if exists "Public update access" on water_readings;
 create policy "Public update access" on water_readings for update to anon using (true);
+drop policy if exists "Public delete access" on water_readings;
 create policy "Public delete access" on water_readings for delete to anon using (true);
 
 -- ============================================
@@ -61,9 +65,13 @@ create index if not exists electric_readings_location_idx on electric_readings(l
 
 -- RLS Policy - PUBLIC ACCESS
 alter table electric_readings enable row level security;
+drop policy if exists "Public read access" on electric_readings;
 create policy "Public read access" on electric_readings for select to anon using (true);
+drop policy if exists "Public insert access" on electric_readings;
 create policy "Public insert access" on electric_readings for insert to anon with check (true);
+drop policy if exists "Public update access" on electric_readings;
 create policy "Public update access" on electric_readings for update to anon using (true);
+drop policy if exists "Public delete access" on electric_readings;
 create policy "Public delete access" on electric_readings for delete to anon using (true);
 
 -- ============================================
@@ -89,9 +97,13 @@ create index if not exists gas_readings_product_idx on gas_readings(product_line
 
 -- RLS Policy - PUBLIC ACCESS
 alter table gas_readings enable row level security;
+drop policy if exists "Public read access" on gas_readings;
 create policy "Public read access" on gas_readings for select to anon using (true);
+drop policy if exists "Public insert access" on gas_readings;
 create policy "Public insert access" on gas_readings for insert to anon with check (true);
+drop policy if exists "Public update access" on gas_readings;
 create policy "Public update access" on gas_readings for update to anon using (true);
+drop policy if exists "Public delete access" on gas_readings;
 create policy "Public delete access" on gas_readings for delete to anon using (true);
 
 -- ============================================
@@ -117,9 +129,13 @@ create index if not exists steam_readings_process_idx on steam_readings(process_
 
 -- RLS Policy - PUBLIC ACCESS
 alter table steam_readings enable row level security;
+drop policy if exists "Public read access" on steam_readings;
 create policy "Public read access" on steam_readings for select to anon using (true);
+drop policy if exists "Public insert access" on steam_readings;
 create policy "Public insert access" on steam_readings for insert to anon with check (true);
+drop policy if exists "Public update access" on steam_readings;
 create policy "Public update access" on steam_readings for update to anon using (true);
+drop policy if exists "Public delete access" on steam_readings;
 create policy "Public delete access" on steam_readings for delete to anon using (true);
 
 -- ============================================
@@ -163,8 +179,11 @@ create table if not exists pricing (
 
 -- RLS Policy - PUBLIC ACCESS
 alter table locations enable row level security;
+drop policy if exists "Public read access" on locations;
 create policy "Public read access" on locations for select to anon using (true);
+drop policy if exists "Public insert access" on locations;
 create policy "Public insert access" on locations for insert to anon with check (true);
+drop policy if exists "Public update access" on locations;
 create policy "Public update access" on locations for update to anon using (true);
 
 -- Insert default water locations
