@@ -671,65 +671,65 @@
         let pieChart = null;
         let allData = { water: [], electric: [], gas: [], steam: [] };
 
-        // Location data matching Excel structure
+        // Location data matching Excel structure (Vietnamese & Chinese)
         const locations = {
             water: [
-                { code: 'B12-W', name: 'Phòng giặt B12' },
-                { code: 'B4.1-W', name: 'Khu dầu cọ B4.1' },
-                { code: 'B4.2-W', name: 'Phòng điện giải B4.2' },
-                { code: 'B11.1-W', name: 'Nấu tương B11.1' },
-                { code: 'B17-W', name: 'Nhà vệ sinh CĐ3 B17' },
-                { code: 'CD3-W-OUT', name: 'Bồn Nước nóng CĐ3 (Ngoài)' },
-                { code: 'B11.2-W', name: 'Rửa dụng cụ CD3 B11.2' }
+                { code: 'B12-W', name: 'Phòng giặt B12', nameCn: 'B12洗衣房' },
+                { code: 'B4.1-W', name: 'Khu dầu cọ B4.1', nameCn: 'B4.1椰子油区' },
+                { code: 'B4.2-W', name: 'Phòng điện giải B4.2', nameCn: 'B4.2电解室' },
+                { code: 'B11.1-W', name: 'Nấu tương B11.1', nameCn: 'B11.1酱油蒸煮' },
+                { code: 'B17-W', name: 'Nhà vệ sinh CĐ3 B17', nameCn: 'CĐ3 B17卫生间' },
+                { code: 'CD3-W-OUT', name: 'Bồn Nước nóng CĐ3 (Ngoài)', nameCn: 'CĐ3热水箱(外)' },
+                { code: 'B11.2-W', name: 'Rửa dụng cụ CD3 B11.2', nameCn: 'CĐ3器具清洗 B11.2' }
             ],
             electric: [
-                { code: 'MP2.2-01', name: 'Trạm khí gas' },
-                { code: 'MP2.2-02', name: 'Khu vực chiên CĐ2' },
-                { code: 'MP2.3-01', name: 'Khu vực sấy nack CĐ2' },
-                { code: 'MP2.3-02', name: 'Khu vực nướng CĐ2' },
-                { code: 'MP2.3-03', name: 'Khu sấy phôi nack' },
-                { code: 'MP2.3-05', name: 'Máy sắp phôi CĐ2' },
-                { code: 'MP2.3-06', name: 'Máy sấy rong biển CĐ2' },
-                { code: 'MP2.3-07', name: 'Khu đóng gói rong biển CĐ3' },
-                { code: 'MP2.3-08', name: 'Sấy phôi CĐ2' },
-                { code: 'MP2.4-01', name: 'Tủ điện ổ cắm sửa chữa' },
-                { code: 'MP2.4-02', name: 'Sấy bánh tuyết CĐ2' },
-                { code: 'MP2.4-03', name: 'Sấy bánh mỏng CĐ2' },
-                { code: 'MP2.4-04', name: 'Phòng nấu tương CĐ2' },
-                { code: 'MP2.4-05', name: 'Máy lạnh CĐ3' },
-                { code: 'MP2.4-06', name: 'Đóng gói nack CĐ3' },
-                { code: 'MP2.4-08', name: 'Sấy bánh phô mai, bánh đậu CĐ2' },
-                { code: 'MP2.5-02', name: 'Đóng gói sen bei CĐ3' },
-                { code: 'MP2.5-05', name: 'Máy hút chân không CĐ2' },
-                { code: 'MP2.5-06', name: 'Đóng gói bánh tuyết CĐ3' },
-                { code: 'MP2.5-07', name: 'Đóng gói BBMM CĐ3' },
-                { code: 'MP2.6-01', name: 'Khu đóng gói phía ngoài CĐ3' },
-                { code: 'MP2.6-02', name: 'Máy lạnh VP bánh gạo + phòng thay đồ CĐ3' },
-                { code: 'MP2.6-03', name: 'AHU máy lạnh CĐ2' },
-                { code: 'MP2.6-04', name: 'Máy lạnh lưu phôi CĐ1' },
-                { code: 'MP2.6-05', name: 'Kho lạnh + phòng đường CĐ2' },
-                { code: 'MP2.6-07', name: 'Quạt hút đóng gói CĐ3' },
-                { code: 'MP2.7-01', name: 'Khu tạo bột CĐ1' },
-                { code: 'MP2.7-02', name: 'Khu rửa gạo CĐ1' },
-                { code: 'MP2.7-03', name: 'Khu vực nghiền CĐ1' },
-                { code: 'MP2.7-05', name: 'Khu hấp CĐ1' },
-                { code: 'MP2.7-06', name: 'Sấy phôi CĐ1' },
-                { code: 'MP2.11-01', name: 'Máy tạo bột khu 2 CĐ1' },
-                { code: 'MP2.11-02', name: 'Khu hấp thành hình CĐ1' },
-                { code: 'MP2.11-03', name: 'Bánh cuộn (Đóng gói)' }
+                { code: 'MP2.2-01', name: 'Trạm khí gas', nameCn: '气体站' },
+                { code: 'MP2.2-02', name: 'Khu vực chiên CĐ2', nameCn: 'CĐ2油炸区' },
+                { code: 'MP2.3-01', name: 'Khu vực sấy nack CĐ2', nameCn: 'CĐ2纳克干燥区' },
+                { code: 'MP2.3-02', name: 'Khu vực nướng CĐ2', nameCn: 'CĐ2烘烤区' },
+                { code: 'MP2.3-03', name: 'Khu sấy phôi nack', nameCn: '纳克胚干燥区' },
+                { code: 'MP2.3-05', name: 'Máy sắp phôi CĐ2', nameCn: 'CĐ2排胚机' },
+                { code: 'MP2.3-06', name: 'Máy sấy rong biển CĐ2', nameCn: 'CĐ2海藻干燥机' },
+                { code: 'MP2.3-07', name: 'Khu đóng gói rong biển CĐ3', nameCn: 'CĐ3海藻包装区' },
+                { code: 'MP2.3-08', name: 'Sấy phôi CĐ2', nameCn: 'CĐ2胚干燥' },
+                { code: 'MP2.4-01', name: 'Tủ điện ổ cắm sửa chữa', nameCn: '维修插座配电箱' },
+                { code: 'MP2.4-02', name: 'Sấy bánh tuyết CĐ2', nameCn: 'CĐ2雪饼干燥' },
+                { code: 'MP2.4-03', name: 'Sấy bánh mỏng CĐ2', nameCn: 'CĐ2薄饼干燥' },
+                { code: 'MP2.4-04', name: 'Phòng nấu tương CĐ2', nameCn: 'CĐ2酱油蒸煮室' },
+                { code: 'MP2.4-05', name: 'Máy lạnh CĐ3', nameCn: 'CĐ3空调' },
+                { code: 'MP2.4-06', name: 'Đóng gói nack CĐ3', nameCn: 'CĐ3纳克包装' },
+                { code: 'MP2.4-08', name: 'Sấy bánh phô mai, bánh đậu CĐ2', nameCn: 'CĐ2奶酪饼/豆饼干燥' },
+                { code: 'MP2.5-02', name: 'Đóng gói sen bei CĐ3', nameCn: 'CĐ3莲藕包装' },
+                { code: 'MP2.5-05', name: 'Máy hút chân không CĐ2', nameCn: 'CĐ2真空机' },
+                { code: 'MP2.5-06', name: 'Đóng gói bánh tuyết CĐ3', nameCn: 'CĐ3雪饼包装' },
+                { code: 'MP2.5-07', name: 'Đóng gói BBMM CĐ3', nameCn: 'CĐ3年糕包装' },
+                { code: 'MP2.6-01', name: 'Khu đóng gói phía ngoài CĐ3', nameCn: 'CĐ3外包装区' },
+                { code: 'MP2.6-02', name: 'Máy lạnh VP bánh gạo + phòng thay đồ CĐ3', nameCn: 'CĐ3年糕车间空调+更衣室' },
+                { code: 'MP2.6-03', name: 'AHU máy lạnh CĐ2', nameCn: 'CĐ2空调机组' },
+                { code: 'MP2.6-04', name: 'Máy lạnh lưu phôi CĐ1', nameCn: 'CĐ1胚储存空调' },
+                { code: 'MP2.6-05', name: 'Kho lạnh + phòng đường CĐ2', nameCn: 'CĐ2冷库+糖室' },
+                { code: 'MP2.6-07', name: 'Quạt hút đóng gói CĐ3', nameCn: 'CĐ3包装抽风机' },
+                { code: 'MP2.7-01', name: 'Khu tạo bột CĐ1', nameCn: 'CĐ1制粉区' },
+                { code: 'MP2.7-02', name: 'Khu rửa gạo CĐ1', nameCn: 'CĐ1洗米区' },
+                { code: 'MP2.7-03', name: 'Khu vực nghiền CĐ1', nameCn: 'CĐ1粉碎区' },
+                { code: 'MP2.7-05', name: 'Khu hấp CĐ1', nameCn: 'CĐ1蒸煮区' },
+                { code: 'MP2.7-06', name: 'Sấy phôi CĐ1', nameCn: 'CĐ1胚干燥' },
+                { code: 'MP2.11-01', name: 'Máy tạo bột khu 2 CĐ1', nameCn: 'CĐ1二区制粉机' },
+                { code: 'MP2.11-02', name: 'Khu hấp thành hình CĐ1', nameCn: 'CĐ1成型蒸煮区' },
+                { code: 'MP2.11-03', name: 'Bánh cuộn (Đóng gói)', nameCn: '卷饼(包装)' }
             ],
             gas: [
-                { code: 'GAS-HH', name: 'Công đoạn 2 - Rong biển' },
-                { code: 'GAS-XB', name: 'Công đoạn 2 - Bánh tuyết' },
-                { code: 'GAS-SB', name: 'Công đoạn 2 - Sen bei' },
-                { code: 'GAS-BBMM', name: 'Công đoạn 2 - BBMM' }
+                { code: 'GAS-HH', name: 'Công đoạn 2 - Rong biển', nameCn: '工序2 - 海藻' },
+                { code: 'GAS-XB', name: 'Công đoạn 2 - Bánh tuyết', nameCn: '工序2 - 雪饼' },
+                { code: 'GAS-SB', name: 'Công đoạn 2 - Sen bei', nameCn: '工序2 - 莲藕' },
+                { code: 'GAS-BBMM', name: 'Công đoạn 2 - BBMM', nameCn: '工序2 - 年糕' }
             ],
             steam: [
-                { code: 'STM-01', name: 'Công đoạn 1 (5#)' },
-                { code: 'STM-02', name: 'Công đoạn 2 - Bánh tuyết (1#)' },
-                { code: 'STM-03', name: 'Công đoạn 2 - Rong biển (2#)' },
-                { code: 'STM-04', name: 'Công đoạn 2 - SNACK (3#)' },
-                { code: 'STM-05', name: 'Công đoạn 3 - Máy khử ẩm (4#)' }
+                { code: 'STM-01', name: 'Công đoạn 1 (5#)', nameCn: '工序1 (5#)' },
+                { code: 'STM-02', name: 'Công đoạn 2 - Bánh tuyết (1#)', nameCn: '工序2 - 雪饼 (1#)' },
+                { code: 'STM-03', name: 'Công đoạn 2 - Rong biển (2#)', nameCn: '工序2 - 海藻 (2#)' },
+                { code: 'STM-04', name: 'Công đoạn 2 - SNACK (3#)', nameCn: '工序2 - 零食 (3#)' },
+                { code: 'STM-05', name: 'Công đoạn 3 - Máy khử ẩm (4#)', nameCn: '工序3 - 除湿机 (4#)' }
             ]
         };
 
@@ -1015,15 +1015,21 @@
             const productLine = document.getElementById('productLine').value;
             const processStep = document.getElementById('processStep').value;
 
-            // Get location name from selected option
+            // Get location name from selected option - find in locations array for CN name
             const locationSelect = document.getElementById('locationCode');
-            const locationName = locationCode ? locationSelect.options[locationSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+            const selectedText = locationSelect.options[locationSelect.selectedIndex].text;
+            const locationNameVi = locationCode ? selectedText.split(' - ')[1] || '' : '';
+
+            // Find Chinese name
+            const locData = locations[type]?.find(l => l.code === locationCode);
+            const locationNameCn = locData?.nameCn || '';
 
             const data = {
                 reading_date: document.getElementById('energyDate').value,
                 shift: shift,
                 location_code: locationCode,
-                location_name_vi: locationName,
+                location_name_vi: locationNameVi,
+                location_name_cn: locationNameCn,
                 reading_value: parseFloat(document.getElementById('energyValue').value),
                 unit_price: parseFloat(document.getElementById('energyPrice').value) || 0,
                 notes: document.getElementById('energyNote').value
@@ -1033,12 +1039,18 @@
             if (type === 'gas') {
                 data.product_line = productLine;
                 const productSelect = document.getElementById('productLine');
-                data.product_name_vi = productLine ? productSelect.options[productSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+                const productText = productSelect.options[productSelect.selectedIndex].text;
+                data.product_name_vi = productLine ? productText.split(' - ')[1] || '' : '';
+                const gasLocData = locations.gas?.find(l => l.code === productLine);
+                data.product_name_cn = gasLocData?.nameCn || '';
             }
             if (type === 'steam') {
                 data.process_step = processStep;
                 const stepSelect = document.getElementById('processStep');
-                data.process_name_vi = processStep ? stepSelect.options[stepSelect.selectedIndex].text.split(' - ')[1] || '' : '';
+                const stepText = stepSelect.options[stepSelect.selectedIndex].text;
+                data.process_name_vi = processStep ? stepText.split(' - ')[1] || '' : '';
+                const steamLocData = locations.steam?.find(l => l.code === processStep);
+                data.process_name_cn = steamLocData?.nameCn || '';
             }
 
             try {
